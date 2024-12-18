@@ -131,6 +131,8 @@ project/
 │   ├── response.py             # Parsing and formatting responses
 │   ├── glue_metadata_extraction.py       # Fetch metadata from Glue
 │   └── config.py               # Configuration settings
+│   └── llm_gq_generation.py    # LLM general query generator
+│   └── general_query_handler.py    # Handles general user queries
 ├── tests/
 │   ├── test_handler.py         # Tests for handler.py
 │   ├── test_athena.py          # Tests for athena.py
