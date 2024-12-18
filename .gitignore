@@ -1,0 +1,43 @@
+# Byte-compiled Python files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual Environment
+.venv/
+venv/
+
+# AWS SAM build artifacts
+.aws-sam/
+
+# Local environment files
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Python-specific package files
+*.egg-info/
+dist/
+build/
+
+# IDE-specific files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Test coverage reports
+coverage/
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Lambda deployment packages
+*.zip
+*.tar.gz
