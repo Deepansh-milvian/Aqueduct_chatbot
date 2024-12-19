@@ -13,22 +13,24 @@ from app.athena import is_athena_query
 from app.general_query_handler import handle_general_query
 
 
-def lambda_handler(event, context):
+# def lambda_handler(event, context):
+#     try:
+#         # Parse the input request
+#         request_body = json.loads(event["body"])
+#         user_query = request_body.get("query")
+
+#         if not user_query:
+#             return {
+#                 "statusCode": 400,
+#                 "body": json.dumps({"error": "Query is required"})
+#             }
+def lambda_handler(user_query):
     try:
-        # Parse the input request
-        request_body = json.loads(event["body"])
-        user_query = request_body.get("query")
-
-        if not user_query:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "Query is required"})
-            }
-
         # Identify query intent (Athena-related or General)
         if is_athena_query(user_query):
             # Athena-related query workflow
             enriched_query = enrich_sql_query(user_query)  # Use LLM to generate SQL
+            print("query enriched")
             query_results = execute_query(enriched_query)  # Execute the SQL in Athena
             response = format_response(query_results)  # Generate a natural language response
         else:
@@ -45,3 +47,9 @@ def lambda_handler(event, context):
             "statusCode": 500,
             "body": json.dumps({"error": str(e)})
         }
+
+
+
+user_query = "What is the total number of devices deployed currently?"
+response = lambda_handler(user_query)
+print(response)
