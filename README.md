@@ -1,5 +1,5 @@
 
-# Refactored App
+# Aqueduct Chatbot
 
 This project provides a simplified and refactored version of the application for interacting with AWS services (Glue, Athena) and Anthropic's Claude model using Bedrock.
 
