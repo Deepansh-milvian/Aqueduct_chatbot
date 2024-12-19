@@ -5,6 +5,7 @@
 
 from anthropic import AnthropicBedrock
 from app.prompts import SYSTEM_PROMPT_GENIE, ENRICH_GENERAL_QUERY_PROMPT, SQL_GENERATION_PROMPT
+from app.config import ANTHROPIC_MODEL
 
 def enrich_general_query(anthropic_client, user_query):
     """
@@ -19,7 +20,7 @@ def enrich_general_query(anthropic_client, user_query):
     """
     prompt = ENRICH_GENERAL_QUERY_PROMPT.format(user_query=user_query)
     response = anthropic_client.messages.create(
-        model="claude-v2",
+        model=ANTHROPIC_MODEL,
         max_tokens=8192,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT_GENIE},
@@ -42,7 +43,7 @@ def generate_sql_query(anthropic_client, metadata, user_query):
     """
     prompt = SQL_GENERATION_PROMPT.format(metadata_context=metadata, user_query=user_query)
     response = anthropic_client.messages.create(
-        model="claude-v2",
+        model=ANTHROPIC_MODEL,
         max_tokens=8192,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT_GENIE},
