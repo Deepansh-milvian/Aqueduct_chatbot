@@ -1,184 +1,120 @@
----
 
-# **AQUEDUCT - CONTEXT AND SCHEMA AWARE CHATBOT**
+# Refactored App
 
-This project provides an application layer to process user chat requests, generate SQL queries, execute them in Amazon Athena, and return natural language responses using AWS Bedrock.
+This project provides a simplified and refactored version of the application for interacting with AWS services (Glue, Athena) and Anthropic's Claude model using Bedrock.
 
----
-
-## **Features**
-
-- **Unified Schema Querying**: Supports querying unified data from DynamoDB and Timestream via Athena.
-- **Natural Language Processing**: Leverages AWS Bedrock to interpret user queries and generate conversational responses.
-- **API Integration**: Exposes an API endpoint using AWS Lambda and API Gateway for real-time interactions.
-
----
-
-## **Architecture**
-
-### **1. Components**
-- **API Gateway**: Handles HTTP requests from users.
-- **AWS Lambda**: Acts as the application layer to:
-  - Interpret user queries.
-  - Interact with AWS Bedrock for SQL query generation.
-  - Execute SQL queries in Athena.
-  - Use Bedrock to format results into natural language responses.
-- **AWS Glue**: Provides metadata for the database schema via Crawlers.
-- **Amazon Athena**: Executes SQL queries on unified data.
-- **AWS Bedrock**: Generates natural language responses.
-
-### **2. Workflow**
-
-1. User sends a natural language query to the API.
-2. Lambda processes the query and uses Bedrock to generate a context-aware SQL query.
-3. SQL query is executed in Athena.
-4. Results from Athena are sent back to Bedrock to generate a conversational response.
-5. Lambda returns the response to the user.
-
----
-
-## **Setup Instructions**
-
-### **1. Prerequisites**
-- AWS account with the following services set up:
-  - **Glue**: Crawlers for metadata collection.
-  - **Athena**: Query engine for unified data.
-  - **Bedrock**: LLM service for query enrichment and response generation.
-- Python 3.9+ installed locally.
-- AWS CLI configured with appropriate IAM permissions:
-  - `glue:GetTables`
-  - `athena:StartQueryExecution`
-  - `athena:GetQueryExecution`
-  - `athena:GetQueryResults`
-  - `bedrock:InvokeModel`
-
-### **2. Clone the Repository**
-```bash
-git clone <repository-url>
-cd <repository-folder>
-```
-
-### **3. Install Dependencies**
-Install the required Python dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-### **4. Configure the Project**
-Update the `config.py` file with your AWS settings:
-```python
-DATABASE_NAME = "your_glue_database"
-OUTPUT_BUCKET = "s3://your-athena-output-bucket/"
-REGION = "your-region"
-AGENT_ID = "your-bedrock-agent-id
-```
-
-### **5. Deploy the Application**
-Deploy the project using AWS SAM:
-1. **Build**:
-    ```bash
-    sam build
-    ```
-2. **Deploy**:
-    ```bash
-    sam deploy --guided
-    ```
-
----
-
-## **API Documentation**
-
-### **Endpoint**
-```
-POST /chat
-```
-
-### **Request**
-- **Headers**:
-  - `Content-Type: application/json`
-- **Body**:
-```json
-{
-  "query": "What is the average temperature in Room A over the last week?"
-}
-```
-
-### **Response**
-- **Success (200)**:
-```json
-{
-  "response": "The average temperature in Room A over the last week is 22.5°C."
-}
-```
-- **Error (400 or 500)**:
-```json
-{
-  "error": "Error message detailing what went wrong."
-}
-```
-
----
-
-## **Project Structure**
+## Directory Structure
 
 ```
-project/
-├── app/
-│   ├── handler.py              # Lambda function handler
-│   ├── athena.py               # Athena query execution logic
-│   ├── llm_sql_generation.py      # LLM query enrichment
-│   ├── llm_response_generation.py # Bedrock response generation
-│   ├── response.py             # Parsing and formatting responses
-│   ├── glue_metadata_extraction.py       # Fetch metadata from Glue
-│   └── config.py               # Configuration settings
-│   └── llm_gq_generation.py    # LLM general query generator
-│   └── general_query_handler.py    # Handles general user queries
-├── tests/
-│   ├── test_handler.py         # Tests for handler.py
-│   ├── test_athena.py          # Tests for athena.py
-│   ├── test_llm.py             # Tests for llm_integration.py
-│   ├── test_response.py        # Tests for response.py
-│   └── test_knowledge_base.py  # Tests for knowledge_base.py
-├── requirements.txt            # Python dependencies
-├── template.yaml               # AWS SAM template for deployment
-└── README.md                   # Project documentation
+app/
+├── config.py                  # Configuration settings
+├── handler.py                 # Entry point (Lambda handler)
+├── prompts.py                 # Centralized prompts
+├── llm_handler.py             # Handles all LLM interactions
+├── utils.py                   # General-purpose utilities (Glue, Athena, and authentication)
 ```
 
----
+### File Descriptions
 
-## **Testing**
+1. **config.py**
+   - Contains configuration settings such as AWS region and database name.
 
-### **Run Unit Tests**
-Run the included unit tests to verify functionality:
-```bash
-pytest tests/
-```
+2. **handler.py**
+   - The main Lambda handler that orchestrates API requests and responses.
 
-### **Test the API**
-Use tools like Postman or `curl` to test the API.
+3. **prompts.py**
+   - Centralized file for managing all prompts used in the application. This ensures consistency and easier maintenance.
 
-Example:
-```bash
-curl -X POST https://<api-gateway-url>/chat \
--H "Content-Type: application/json" \
--d '{"query": "What is the average temperature in Room A over the last week?"}'
-```
+4. **llm_handler.py**
+   - Handles all interactions with Anthropic Claude via Bedrock.
+   - Functions:
+     - `enrich_general_query`: Refines user queries.
+     - `generate_sql_query`: Generates schema-aware SQL queries.
 
----
+5. **utils.py**
+   - Provides general-purpose utilities for the app.
+   - Functions:
+     - `fetch_metadata`: Extracts schema metadata from AWS Glue.
+     - `hash_password`: Hashes passwords using Argon2.
 
-## **Future Enhancements**
-1. **Multi-Language Support**:
-   - Support queries in multiple languages using Bedrock's multilingual capabilities.
-2. **Enhanced Security**:
-   - Implement API Gateway authorization (e.g., AWS Cognito).
-3. **Scalability**:
-   - Add caching for frequently executed queries to reduce latency.
-4. **Analytics**:
-   - Log query patterns for user behavior analysis.
+## Features
 
----
+- **Centralized Prompts**:
+  - All prompts are managed in `prompts.py` to ensure consistency.
 
-## **License**
-This project is licensed under the MIT License. See the LICENSE file for details.
+- **LLM Interactions**:
+  - Generates natural language and SQL responses using Anthropic Claude.
 
----
+- **Glue and Athena Integration**:
+  - Fetches schema metadata from AWS Glue.
+  - Uses metadata to generate Athena-compatible SQL queries.
+
+- **Simplified Structure**:
+  - Consolidated files for better maintainability and scalability.
+
+## Prerequisites
+
+- Python 3.9 or later
+- Required Python Packages:
+  ```bash
+  pip install boto3 anthropic argon2-cffi
+  ```
+- AWS CLI configured with credentials and proper permissions.
+
+## Environment Variables
+
+Ensure the following environment variables are set:
+
+- `AWS_REGION`: The AWS region where Glue and Bedrock services are deployed.
+- `DATABASE_NAME`: The Glue database name.
+
+## Usage
+
+### Running Locally
+
+1. Install required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Run the application:
+   ```bash
+   python handler.py
+   ```
+
+### Deploying to AWS Lambda
+
+1. Package the application:
+   ```bash
+   zip -r app.zip .
+   ```
+
+2. Deploy using the AWS CLI:
+   ```bash
+   aws lambda create-function      --function-name YourFunctionName      --runtime python3.9      --role YourIAMRoleARN      --handler handler.lambda_handler      --zip-file fileb://app.zip
+   ```
+
+## Testing
+
+### Example Queries
+
+- **General Query Enrichment**:
+  ```python
+  from app.llm_handler import enrich_general_query
+  query = "What is the total revenue for last month?"
+  result = enrich_general_query(anthropic_client, query)
+  print(result)
+  ```
+
+- **SQL Generation**:
+  ```python
+  from app.llm_handler import generate_sql_query
+  metadata = {"sales_data": ["region", "sales", "date"]}
+  query = "What is the total sales grouped by region?"
+  result = generate_sql_query(anthropic_client, metadata, query)
+  print(result)
+  ```
+
+## License
+
+This project is licensed under the MIT License.
