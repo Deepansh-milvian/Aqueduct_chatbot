@@ -11,7 +11,7 @@ def lambda_query_execution(event, context):
     """
     Executes the SQL query using Athena and retrieves results.
     """
-    sql_query = event["sql_query"]
+    sql_query = event["sql_query"] +";"
 
     try:
         # Start the Athena query execution

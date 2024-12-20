@@ -34,7 +34,10 @@ Follow these steps:
 4. If multiple tables are involved, join them appropriately, and include filtering criteria to narrow down results as per the user's needs.
 5. Optimize the query for performance, considering factors like aggregation, filtering, and table size.
 6. Clearly structure the query for readability and correctness.
-7. Provide the SQL query without including additional commentary or explanations.
+7. Generate just one query and make sure that the query is in correct format and structure without any missing ";".
+8. Most importatnt: Provide the SQL query without including additional commentary or explanations.
+
+Here is the prompt and the glue metadata for the tables from the user: 
 """
 
 # General Query Enrichment Prompt
@@ -48,8 +51,8 @@ Follow these steps:
 5. Maintain a formal and professional tone, avoiding unnecessary embellishments or informal language.
 """
 
-# Response Enrichment Prompt
-response_enrichment_prompt = f"""
+# SQL Response Enrichment Prompt
+sql_response_enrichment_prompt = f"""
 Your task is to transform the raw data obtained from a query into a clear and insightful natural language response.
 Follow these steps:
 1. Review the raw data to identify key insights, trends, and patterns.

@@ -1,8 +1,8 @@
 import boto3
 import os
-
+from config import REGION
 # Load configuration
-REGION = os.environ.get("REGION", "us-east-1")
+
 glue_client = boto3.client("glue", region_name=REGION)
 
 def fetch_metadata_from_glue(database_name):
@@ -26,7 +26,7 @@ def enrich_query(user_request, database_name):
     enriched_query = f"""
     User Request: {user_request}
 
-    Glue Metadata:
+    Glue Metadata: This contains the table names, schema and other information.
     {glue_context}
     """
     return enriched_query

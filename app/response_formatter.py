@@ -1,5 +1,5 @@
 import json
-from prompts import system_prompt, response_enrichment_prompt, general_query_enrichment_prompt
+from prompts import system_prompt, sql_response_enrichment_prompt, general_query_enrichment_prompt
 
 def lambda_response_formatter(data, bedrock_runtime, is_general=False, model_id=None):
     """
@@ -26,7 +26,7 @@ def lambda_response_formatter(data, bedrock_runtime, is_general=False, model_id=
         prompt = f"""
         {system_prompt}
 
-        {response_enrichment_prompt}
+        {sql_response_enrichment_prompt}
 
         Query Results:
         {data}
@@ -35,7 +35,7 @@ def lambda_response_formatter(data, bedrock_runtime, is_general=False, model_id=
     # Bedrock payload
     body = json.dumps({
         "prompt": prompt,
-        "maxTokens": 4000,
+        "maxTokens": 8000,
         "temperature": 0.7,
         "topP": 1
     })
