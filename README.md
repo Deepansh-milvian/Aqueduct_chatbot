@@ -1,120 +1,145 @@
+# AQUEBOT
 
-# Aqwueduct Chatbot
+This project handles user queries through a serverless architecture using AWS services such as Lambda, Bedrock, Athena, and Glue. The workflow processes SQL-based and general queries, enriches them with metadata, executes SQL queries in Athena, and formats responses using Bedrock LLMs.
 
-This project provides a simplified and refactored version of the application for interacting with AWS services (Glue, Athena) and Anthropic's Claude model using Bedrock.
+---
 
-## Directory Structure
+## **Architecture Overview**
 
+1. **Integration Handler**:
+   - Identifies query type (SQL or General).
+   - Coordinates the query processing flow.
+
+2. **SQL Generator**:
+   - Generates SQL queries tailored for Athena using enriched user prompts.
+
+3. **Query Enricher**:
+   - Fetches metadata from the Glue catalog.
+   - Enriches user queries with context.
+
+4. **Query Executor**:
+   - Executes SQL queries in Athena.
+   - Retrieves and formats query results.
+
+5. **Response Formatter**:
+   - Converts query results or general query responses into user-friendly natural language.
+
+6. **Prompts**:
+   - Centralized storage for system and task-specific prompts.
+
+---
+
+## **Deployment**
+
+### Prerequisites
+- AWS account with permissions for Lambda, Athena, Glue, and Bedrock.
+- S3 bucket for Athena query results.
+- Python 3.x environment.
+
+### Steps
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
+
+2. Configure AWS credentials:
+   ```bash
+   aws configure
+   ```
+
+3. Deploy the Lambda functions:
+   - Package each module (`integration_handler`, `sql_generator`, `response_formatter`, etc.) as a separate Lambda function.
+   - Assign appropriate IAM roles with necessary permissions for Glue, Athena, and Bedrock.
+
+4. Set environment variables:
+   - `REGION`: AWS region (e.g., `us-east-1`).
+   - `ANTHROPIC_MODEL`: Model name for Bedrock LLM (e.g., `anthropic.claude-v2`).
+
+5. Test the Lambda function using the provided sample events.
+
+---
+
+## **Sample Event Bodies**
+
+### SQL Query Event
+```json
+{
+  "request": "Fetch all active devices"
+}
 ```
-app/
-├── config.py                  # Configuration settings
-├── handler.py                 # Entry point (Lambda handler)
-├── prompts.py                 # Centralized prompts
-├── llm_handler.py             # Handles all LLM interactions
-├── utils.py                   # General-purpose utilities (Glue, Athena, and authentication)
+
+### General Query Event
+```json
+{
+  "request": "Tell me something about Aqueduct"
+}
 ```
 
-### File Descriptions
+---
 
-1. **config.py**
-   - Contains configuration settings such as AWS region and database name.
+## **Modules**
 
-2. **handler.py**
-   - The main Lambda handler that orchestrates API requests and responses.
+### **Integration Handler**
+- **Purpose**: Coordinates query handling.
+- **Input**: User query (SQL or general).
+- **Output**: Final formatted response.
+- **Key Functions**:
+  - `lambda_integration_handler`: Main entry point.
 
-3. **prompts.py**
-   - Centralized file for managing all prompts used in the application. This ensures consistency and easier maintenance.
+### **SQL Generator**
+- **Purpose**: Generates SQL queries using LLM.
+- **Input**: Enriched user query.
+- **Output**: SQL query tailored for Athena.
 
-4. **llm_handler.py**
-   - Handles all interactions with Anthropic Claude via Bedrock.
-   - Functions:
-     - `enrich_general_query`: Refines user queries.
-     - `generate_sql_query`: Generates schema-aware SQL queries.
+### **Query Enricher**
+- **Purpose**: Enriches queries with metadata from Glue.
+- **Input**: User query and database/catalog name.
+- **Output**: Enriched query string.
 
-5. **utils.py**
-   - Provides general-purpose utilities for the app.
-   - Functions:
-     - `fetch_metadata`: Extracts schema metadata from AWS Glue.
-     - `hash_password`: Hashes passwords using Argon2.
+### **Query Executor**
+- **Purpose**: Executes SQL queries in Athena.
+- **Input**: SQL query.
+- **Output**: Extracted rows from Athena.
 
-## Features
+### **Response Formatter**
+- **Purpose**: Converts query results or general queries into natural language.
+- **Input**: Query results or general query.
+- **Output**: User-friendly response string.
 
-- **Centralized Prompts**:
-  - All prompts are managed in `prompts.py` to ensure consistency.
+### **Prompts**
+- **Purpose**: Stores system and task-specific prompts.
+- **Files**: `prompts.py`.
 
-- **LLM Interactions**:
-  - Generates natural language and SQL responses using Anthropic Claude.
+---
 
-- **Glue and Athena Integration**:
-  - Fetches schema metadata from AWS Glue.
-  - Uses metadata to generate Athena-compatible SQL queries.
+## **Testing**
 
-- **Simplified Structure**:
-  - Consolidated files for better maintainability and scalability.
+### Lambda Console Testing
+1. Open the Lambda function in the AWS Management Console.
+2. Click on **Test**.
+3. Paste a sample event body (SQL or General) into the event input.
+4. Run the test to validate functionality.
 
-## Prerequisites
+### Local Testing
+- Use the `boto3` library to invoke Lambda functions locally.
+- Mock responses for Bedrock, Glue, and Athena for unit testing.
 
-- Python 3.9 or later
-- Required Python Packages:
-  ```bash
-  pip install boto3 anthropic argon2-cffi
-  ```
-- AWS CLI configured with credentials and proper permissions.
+---
 
-## Environment Variables
+## **Logging and Monitoring**
+- Use AWS CloudWatch for monitoring Lambda execution.
+- Log structured error messages for debugging.
 
-Ensure the following environment variables are set:
+---
 
-- `AWS_REGION`: The AWS region where Glue and Bedrock services are deployed.
-- `DATABASE_NAME`: The Glue database name.
+## **Future Enhancements**
+- Add support for multi-table metadata enrichment.
+- Optimize SQL generation using prompt fine-tuning.
+- Enhance error handling and retry mechanisms for Bedrock and Athena API calls.
 
-## Usage
+---
 
-### Running Locally
+## **Contact**
+For questions or contributions, please reach out to the project maintainer.
 
-1. Install required packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. Run the application:
-   ```bash
-   python handler.py
-   ```
-
-### Deploying to AWS Lambda
-
-1. Package the application:
-   ```bash
-   zip -r app.zip .
-   ```
-
-2. Deploy using the AWS CLI:
-   ```bash
-   aws lambda create-function      --function-name YourFunctionName      --runtime python3.9      --role YourIAMRoleARN      --handler handler.lambda_handler      --zip-file fileb://app.zip
-   ```
-
-## Testing
-
-### Example Queries
-
-- **General Query Enrichment**:
-  ```python
-  from app.llm_handler import enrich_general_query
-  query = "What is the total revenue for last month?"
-  result = enrich_general_query(anthropic_client, query)
-  print(result)
-  ```
-
-- **SQL Generation**:
-  ```python
-  from app.llm_handler import generate_sql_query
-  metadata = {"sales_data": ["region", "sales", "date"]}
-  query = "What is the total sales grouped by region?"
-  result = generate_sql_query(anthropic_client, metadata, query)
-  print(result)
-  ```
-
-## License
-
-This project is licensed under the MIT License.
