@@ -14,7 +14,7 @@ def lambda_sql_generator(enriched_request, bedrock_runtime, model_id):
     # Bedrock payload
     payload = {
         "prompt": enriched_request,
-        "maxTokens": 500,
+        "maxTokens": 4000,
         "temperature": 0.7,
         "topP": 1
     }
